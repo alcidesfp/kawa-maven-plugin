@@ -5,22 +5,21 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.*;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.Arrays;
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-
- 
 /**
  * Base abstract kawa mojo
  */
@@ -122,7 +121,7 @@ public abstract class BaseKawaMojo extends AbstractMojo
                     .collect(Collectors.toList());
             } else {
                 Path schemeRootPath = new File(schemeRoot).toPath();
-                schemeCompileTargets = Files.find(Paths.get(schemeRoot), 999, 
+                schemeCompileTargets = Files.find(Paths.get(schemeRoot), 999,
                         (path, attr) -> {
                             File f = path.toFile();
                             return !f.isDirectory() && f.getName().endsWith(".sld");
@@ -136,8 +135,8 @@ public abstract class BaseKawaMojo extends AbstractMojo
             List<String> commands = new ArrayList<>(Arrays.asList("java", kawaImport, "kawa.repl"));
             commands.addAll(makeWarnOptions());
             commands.addAll(getPBCommands());
-            var pb = new ProcessBuilder(commands);
-            var envVars = pb.environment();
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            Map<String, String> envVars = pb.environment();
             envVars.put("CLASSPATH", makeCPString(getClassPathElements(project)));
             pb.inheritIO();
             int code = pb.start().waitFor();
@@ -148,7 +147,7 @@ public abstract class BaseKawaMojo extends AbstractMojo
     }
 
     private String makeCPString(List<String> locations) {
-        var sep = System.getProperty("path.separator");
+        String sep = System.getProperty("path.separator");
         return locations.stream()
             .collect(Collectors.joining(sep));
     }
